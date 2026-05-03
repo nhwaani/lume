@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  lume-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lume-dev-container
+    volumes:
+      - .:/app
+      - lume-target:/app/target
+    environment:
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+    network_mode: host
+    # This allows the container to access the host's X11 server
+    devices:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    # GPU Passthrough for Nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    working_dir: /app
+
+volumes:
+  lume-target:
