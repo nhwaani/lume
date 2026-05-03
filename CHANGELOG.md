@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Project README documenting vision, tech stack, quick start, layout, and SDLC workflow.
+- Dual MIT / Apache-2.0 license (`LICENSE-MIT`, `LICENSE-APACHE`).
+
 ## [0.1.1] - 2026-05-03
 
 ### Added
