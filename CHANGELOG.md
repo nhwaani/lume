@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 - Project README documenting vision, tech stack, quick start, layout, and SDLC workflow.
 - Dual MIT / Apache-2.0 license (`LICENSE-MIT`, `LICENSE-APACHE`).
 
+### Changed
+- ROADMAP marks Phase 1 as shipped, Phase 2 as up next; Next Target bumped to v0.1.2.
+
 ## [0.1.1] - 2026-05-03
 
 ### Added

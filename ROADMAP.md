@@ -4,17 +4,17 @@
 A GPU-accelerated, agent-customizable GitHub PR client.
 
 ## 🚩 Current Milestone: The Luminous Foundation
-**Target Version**: v0.1.1
-**Status**: 🟡 In Progress
+**Next Target**: v0.1.2 — Phase 2 (GitHub Bridge)
+**Status**: 🟡 In Progress (1 of 5 phases shipped)
 
-### Phase 1: Foundation
+### Phase 1: Foundation ✅ Shipped in v0.1.1
 - [x] Setup WGPU Window
 - [x] Theme $\to$ GPU Clear Color
 - [x] Render "Lume" Brand Text
 - [x] Setup Headless WGPU Test Harness
 - [x] Verify DoD $\to$ Log to Wiki
 
-### Phase 2: GitHub Bridge
+### Phase 2: GitHub Bridge ⏭ Up next
 - [ ] `gh` CLI wrapper
 - [ ] JSON $\to$ Struct parsing
 - [ ] Terminal data verification
