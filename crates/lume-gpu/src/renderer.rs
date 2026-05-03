@@ -1,37 +1,37 @@
-use wgpu::util::DeviceExt;
-use winit::{window::Window, event::*};
+use anyhow::{Context, Result};
+use winit::window::Window;
 
 pub struct Renderer {
-    surface: wgpu::Surface,
-    device: wgpu::Device,
-    queue: wgpu::Queue,
-    config: wgpu::SurfaceConfiguration,
-    size: winit::dpi::PhysicalSize<u32>,
-    // The window must be declared after the surface so
-    // it gets dropped after it as the surface contains
-    // unsafe references to the window's resources.
-    window: Window,
-    clear_color: wgpu::Color,
+    pub surface: wgpu::Surface<'static>,
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub config: wgpu::SurfaceConfiguration,
+    pub size: winit::dpi::PhysicalSize<u32>,
+    // INVARIANT: `window` must be declared after `surface` and must not be
+    // moved out of this struct. Fields drop in declaration order, so this
+    // ordering keeps the surface alive only while the window exists.
+    pub window: Window,
+    pub clear_color: wgpu::Color,
 }
 
 impl Renderer {
-    // Create some of the wgpu types and the window.
-    // Returns a future that resolves when the renderer is ready.
-    pub async fn new(window: Window) -> Self {
+    pub async fn new(window: Window, clear_color: wgpu::Color) -> Result<Self> {
         let size = window.inner_size();
 
-        // The instance is a handle to our GPU
-        // BackendBit::PRIMARY => Vulkan + Metal + DX12 + Browser WebGPU
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
         });
 
-        // # Safety
-        //
-        // The surface needs to live as long as the window that created it.
-        // State owns the window so this should be safe.
-        let surface = unsafe { instance.create_surface(&window) }.unwrap();
+        // SAFETY: see the INVARIANT note on the `window` field — `surface`
+        // is declared first so it is dropped before the window it borrows.
+        let surface = unsafe {
+            let target = wgpu::SurfaceTargetUnsafe::from_window(&window)
+                .context("obtaining window handle")?;
+            instance
+                .create_surface_unsafe(target)
+                .context("creating wgpu surface")?
+        };
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -40,38 +40,29 @@ impl Renderer {
                 force_fallback_adapter: false,
             })
             .await
-            .unwrap();
+            .context("no compatible wgpu adapter")?;
 
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
                     required_features: wgpu::Features::empty(),
-                    // WebGL doesn't support all of wgpu's features, so if
-                    // we're building for the web we'll have to disable some.
-                    required_limits: if cfg!(target_arch = "wasm32") {
-                        wgpu::Limits::downlevel_webgl2_defaults()
-                    } else {
-                        wgpu::Limits::default()
-                    },
+                    required_limits: wgpu::Limits::default(),
+                    memory_hints: wgpu::MemoryHints::default(),
                     label: None,
-                    memory_hints: Default::default(),
                 },
-                // Some &std::path::Path, // Trace path
                 None,
             )
             .await
-            .unwrap();
+            .context("requesting wgpu device")?;
 
         let surface_caps = surface.get_capabilities(&adapter);
-        // Shader code in this tutorial assumes an sRGB surface texture. Using a different
-        // one will result all the colors coming out darker. If you want to support non
-        // sRGB surfaces, you need to account for that when drawing to the frame.
         let surface_format = surface_caps
             .formats
             .iter()
             .copied()
             .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
+
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
@@ -84,14 +75,7 @@ impl Renderer {
         };
         surface.configure(&device, &config);
 
-        let clear_color = wgpu::Color {
-            r: 0.1,
-            g: 0.2,
-            b: 0.3,
-            a: 1.0,
-        };
-
-        Self {
+        Ok(Self {
             surface,
             device,
             queue,
@@ -99,11 +83,7 @@ impl Renderer {
             size,
             window,
             clear_color,
-        }
-    }
-
-    pub fn window(&self) -> &Window {
-        &self.window
+        })
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
@@ -115,44 +95,28 @@ impl Renderer {
         }
     }
 
-    #[allow(unused_variables)]
-    pub fn input(&mut self, event: &Event<()>) -> bool {
-        false
+    pub fn reconfigure(&self) {
+        self.surface.configure(&self.device, &self.config);
     }
 
-    pub fn update(&mut self) {}
+    pub fn set_clear_color(&mut self, color: wgpu::Color) {
+        self.clear_color = color;
+    }
 
-    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        let output = self.surface.get_current_texture()?;
-        let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
-
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
+    pub fn record_clear(&self, encoder: &mut wgpu::CommandEncoder, view: &wgpu::TextureView) {
+        let _pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Clear Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(self.clear_color),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            occlusion_query_set: None,
+            timestamp_writes: None,
         });
-
-        {
-            let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(self.clear_color),
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-                timestamp_writes: None,
-                occlusion_query_set: None,
-            });
-        }
-
-        // Submit will accept anything that implements IntoIter
-        self.queue.submit(std::iter::once(encoder.finish()));
-        output.present();
-
-        Ok(())
     }
 }

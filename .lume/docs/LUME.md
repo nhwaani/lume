@@ -12,8 +12,8 @@ It is designed to feel like a "Luminous" instrument—fluid, fast, and precise.
 
 ## Tech Stack
 - **Language**: Rust
-- **Graphics**: WGPU (WebGPU) + Winit
-- **Text**: Glyph-brush / Vello
-- **Async**: Tokio
+- **Graphics**: WGPU + Winit
+- **Text**: `glyph_brush` (Phase 1). Re-evaluate Vello once vector UI elements are needed.
+- **Async**: `futures` today; Tokio when concurrent I/O lands in `lume-core`.
 - **Config**: TOML (with hot-reloading)
 - **Data**: GitHub CLI (`gh`) wrapper for auth/API.
