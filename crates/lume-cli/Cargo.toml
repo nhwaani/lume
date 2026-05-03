@@ -1,0 +1,10 @@
+[package]
+name = "lume-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lume-core = { path = "../lume-core" }
+lume-gpu = { path = "../lume-gpu" }
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"

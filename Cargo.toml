@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "crates/lume-core",
+    "crates/lume-gpu",
+    "crates/lume-cli",
+]
+resolver = "2"

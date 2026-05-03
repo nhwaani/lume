@@ -1,0 +1,11 @@
+# Lume Configuration - Edited by Human & Agent
+
+[theme]
+background = "#1a1b26"
+foreground = "#a9b1d6"
+accent = "#7aa2f7"
+glow_intensity = 0.5
+
+[behavior]
+default_repo = "owner/repo"
+pr_fetch_limit = 100
