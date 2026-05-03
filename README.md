@@ -121,13 +121,13 @@ See [ROADMAP.md](ROADMAP.md) for the detailed checklist.
 
 ## Contributing
 
-This is a personal project in active development; external contributions are not yet accepted, but the code is open for reading and learning.
-
-If you do submit a PR, the gates are non-negotiable:
+Lume is in active development and the API is unstable, but contributions are welcome — issues and pull requests both. The non-negotiable gates apply equally to maintainer and outside PRs:
 
 - `lume-tester` PASS (formatting, clippy, build, tests, verify-* checks)
 - `lume-reviewer` LGTM
 - Diff matches the active spec's Definition of Done; no scope creep
+
+For larger changes, open an issue first so the work fits the current phase rather than colliding with it.
 
 ## License
 
