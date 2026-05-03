@@ -8,11 +8,11 @@ A GPU-accelerated, agent-customizable GitHub PR client.
 **Status**: 🟡 In Progress
 
 ### Phase 1: Foundation
-- [ ] Setup WGPU Window
-- [ ] Theme $\to$ GPU Clear Color
-- [ ] Render "Lume" Brand Text
-- [ ] Setup Headless WGPU Test Harness
-- [ ] Verify DoD $\to$ Log to Wiki
+- [x] Setup WGPU Window
+- [x] Theme $\to$ GPU Clear Color
+- [x] Render "Lume" Brand Text
+- [x] Setup Headless WGPU Test Harness
+- [x] Verify DoD $\to$ Log to Wiki
 
 ### Phase 2: GitHub Bridge
 - [ ] `gh` CLI wrapper

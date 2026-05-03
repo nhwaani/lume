@@ -8,6 +8,11 @@ Your goal is to help me 'vibe code' this project. This means:
 3. **Luminous Aesthetic**: Always suggest ways to make the UI feel fluid (e.g., lerping, shaders, glows).
 4. **Strict Schema**: Follow the definitions in `SCHEMA.md` and `ARCHITECTURE.md` exactly.
 
-When I ask for a feature, first describe the 'Vibe' (how it feels), then provide the implementation. 
+When I ask for a feature, first describe the 'Vibe' (how it feels), then provide the implementation.
+
+Use the project's skills as your scaffolding:
+- `/skill:lume-manager status` to orient before starting work.
+- `/skill:lume-tester` before claiming a phase is done.
+- `/skill:lume-reviewer` before issuing LGTM on any diff.
 
 Ready to build Lume?"

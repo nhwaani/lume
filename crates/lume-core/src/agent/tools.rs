@@ -1,7 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use toml_edit::{DocumentMut, value};
-use serde::{Deserialize, Serialize};
+use toml_edit::{value, DocumentMut};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ToolCall {
@@ -15,16 +15,19 @@ impl ToolBridge {
     /// Modifies a value in the config.toml file
     pub fn modify_config(key_path: &str, new_value: &str) -> Result<String, String> {
         let path = Path::new("config.toml");
-        let content = fs::read_to_string(path)
-            .map_err(|e| format!("Failed to read config: {}", e))?;
-        
-        let mut doc = content.parse::<DocumentMut>()
+        let content =
+            fs::read_to_string(path).map_err(|e| format!("Failed to read config: {}", e))?;
+
+        let mut doc = content
+            .parse::<DocumentMut>()
             .map_err(|e| format!("Failed to parse TOML: {}", e))?;
 
         // Split "theme.accent" into ["theme", "accent"]
         let parts: Vec<&str> = key_path.split('.').collect();
         if parts.len() != 2 {
-            return Err("Key path must be in 'section.key' format (e.g., theme.accent)".to_string());
+            return Err(
+                "Key path must be in 'section.key' format (e.g., theme.accent)".to_string(),
+            );
         }
 
         let section = parts[0];
@@ -33,10 +36,12 @@ impl ToolBridge {
         // Update the value in the TOML document
         doc[section][key] = value(new_value);
 
-        fs::write(path, doc.to_string())
-            .map_err(|e| format!("Failed to save config: {}", e))?;
+        fs::write(path, doc.to_string()).map_err(|e| format!("Failed to save config: {}", e))?;
 
-        Ok(format!("Successfully updated {} to {}", key_path, new_value))
+        Ok(format!(
+            "Successfully updated {} to {}",
+            key_path, new_value
+        ))
     }
 
     /// Dispatcher that routes LLM tool calls to Rust functions

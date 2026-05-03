@@ -6,5 +6,7 @@ edition = "2021"
 [dependencies]
 lume-core = { path = "../lume-core" }
 lume-gpu = { path = "../lume-gpu" }
-tokio = { version = "1.0", features = ["full"] }
+winit = "0.29"
+futures = "0.3"
 anyhow = "1.0"
+wgpu = "23"
